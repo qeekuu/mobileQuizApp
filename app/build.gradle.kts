@@ -15,6 +15,10 @@ android {
         versionName = "1.0"
     }
 
+	buildFeatures {
+		vivewBinding = true
+	}
+
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
@@ -26,12 +30,18 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
+	
+	java {
+		toolchain {
+			languageVersion.set(JavaLanguageVersion.of(17))
+		}
+	}
 
     // jesli comopse:
     // buildFeatures { compose = true }
-    // composeOptions { kotlinCompilerExtensionVersion = "1.4.7" /*przykład*/ }
+    // composeOptions { kotlinCompilerExtensionVersion = "1.5.5"}
 }
 
 dependencies {
@@ -40,5 +50,15 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.5.1")
     implementation("com.google.android.material:material:1.7.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")	
+
+	testImplementation("junit:junit:4.13.2")
+    testImplementation("androidx.arch.core:core-testing:2.1.0") // do testowania LiveData/ViewModel
+	// Compose
+    // implementation(platform("androidx.compose:compose-bom:2023.10.00"))
+    // implementation("androidx.compose.ui:ui")
+    // implementation("androidx.compose.material3:material3")
+    // implementation("androidx.activity:activity-compose")
+    // implementation("androidx.compose.ui:ui-tooling-preview")
+    // debugImplementation("androidx.compose.ui:ui-tooling")	
 }
 
