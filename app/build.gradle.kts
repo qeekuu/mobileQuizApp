@@ -15,8 +15,12 @@ android {
         versionName = "1.0"
     }
 
+	testOptions {
+        unitTests.isIncludeAndroidResources = true 
+    }	
+
 	buildFeatures {
-		vivewBinding = true
+		viewBinding = true
 	}
 
     buildTypes {
@@ -51,8 +55,20 @@ dependencies {
     implementation("com.google.android.material:material:1.7.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")	
 
+	//tests
 	testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.arch.core:core-testing:2.1.0") // do testowania LiveData/ViewModel
+	androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+	// KTX dla Activity/Fragment aby użyć by viewModels()
+    implementation("androidx.activity:activity-ktx:1.6.1")
+    implementation("androidx.fragment:fragment-ktx:1.5.5")
+
+    // ViewModel + LiveData KTX
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.5.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")	
 	// Compose
     // implementation(platform("androidx.compose:compose-bom:2023.10.00"))
     // implementation("androidx.compose.ui:ui")
