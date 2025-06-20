@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import com.example.mobilequizapp.databinding.ActivityMainBinding
 import com.example.mobilequizapp.viewmodel.QuizViewModel
+import com.example.mobilequizapp.ResultActivity
 
 class MainActivity : AppCompatActivity() {
 
