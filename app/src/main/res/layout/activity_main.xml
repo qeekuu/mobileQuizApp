@@ -30,6 +30,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+	<TextView
+		android:id="@+id/textScore"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Wynik: 0"
+		android:textSize="16sp"
+		app:layout_constraintTop_toBottomOf="@id/textQuestionNumber"
+		app:layout_constraintStart_toStartOf="parent"/>
+
     <!-- RadioGroup dla opcji (wypełniane dynamicznie w kodzie) -->
     <RadioGroup
         android:id="@+id/radioGroupOptions"

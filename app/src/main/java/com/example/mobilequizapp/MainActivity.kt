@@ -6,108 +6,69 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import com.example.mobilequizapp.databinding.ActivityMainBinding
 import com.example.mobilequizapp.viewmodel.QuizViewModel
-import com.example.mobilequizapp.ResultActivity
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
-    private val viewModel: QuizViewModel by viewModels()
+  private lateinit var binding: ActivityMainBinding
+  private val vm: QuizViewModel by viewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    binding = ActivityMainBinding.inflate(layoutInflater)
+    setContentView(binding.root)
 
-        // Obserwuj LiveData
-        viewModel.currentQuestion.observe(this, Observer { question ->
-            updateQuestionUI(question)
-        })
-        viewModel.currentIndex.observe(this, Observer { index ->
-            updateQuestionNumberUI(index)
-            // Tekst przycisku: jeżeli ostatnie pytanie, zmień z “Potwierdź” na “Zakończ”
-            val total = viewModel.totalQuestions()
-            if (index == total - 1) {
-                binding.buttonConfirm.text = "Zakończ"
-            } else {
-                binding.buttonConfirm.text = "Dalej"
-            }
-        })
-        viewModel.selectedOptionIndex.observe(this, Observer { selectedIdx ->
-            // Włącz/wyłącz przycisk
-            binding.buttonConfirm.isEnabled = (selectedIdx >= 0)
-            // Ustaw zaznaczenie w RadioGroup (przy przywracaniu stanu)
-            // Ale ponieważ generujemy RadioButtons dynamicznie, przy updateQuestionUI ustawiamy zaznaczenie
-        })
-        viewModel.isFinished.observe(this, Observer { finished ->
-            if (finished) {
-                // Przechodzimy do ResultActivity
-                val score = viewModel.score.value ?: 0
-                val total = viewModel.totalQuestions()
-                val intent = Intent(this, ResultActivity::class.java).apply {
-                    putExtra(ResultActivity.EXTRA_SCORE, score)
-                    putExtra(ResultActivity.EXTRA_TOTAL, total)
-                }
-                startActivity(intent)
-                // Opcjonalnie zakończ MainActivity, aby po powrocie z wyniku zacząć od nowa
-                finish()
-            }
-        })
-
-        // Kliknięcie potwierdzenia
-        binding.buttonConfirm.setOnClickListener {
-            viewModel.confirmAnswer()
-        }
+    vm.currentQuestion.observe(this) { dq ->
+      renderQuestion(dq)
+    }
+    vm.currentIndex.observe(this) { idx ->
+      binding.textQuestionNumber.text = "Pytanie ${idx+1}/${vm.totalQuestions()}"
+      binding.buttonConfirm.text =
+        if (idx == vm.totalQuestions()-1) "Zakończ" else "Dalej"
+      // na każdą zmianę pytania blokujemy przycisk
+      binding.buttonConfirm.isEnabled = false
+    }
+    vm.score.observe(this) { score ->
+      binding.textScore.text = "Wynik: $score"
+    }
+    vm.isFinished.observe(this) { end ->
+      if (end) {
+        startActivity(
+          Intent(this, ResultActivity::class.java)
+            .putExtra(ResultActivity.EXTRA_SCORE, vm.score.value)
+            .putExtra(ResultActivity.EXTRA_TOTAL, vm.totalQuestions())
+        )
+        finish()
+      }
     }
 
-    private fun updateQuestionNumberUI(index: Int) {
-        val total = viewModel.totalQuestions()
-        binding.textQuestionNumber.text = "Pytanie ${index + 1}/$total"
+    binding.buttonConfirm.setOnClickListener {
+      // odczytujemy zaznaczoną opcję
+      val checked = binding.radioGroupOptions.checkedRadioButtonId
+      vm.selectAndConfirm(checked)
     }
+  }
 
-    private fun updateQuestionUI(question: com.example.mobilequizapp.data.Question?) {
-        // Usuń poprzednie RadioButtony
-        binding.radioGroupOptions.removeAllViews()
+  private fun renderQuestion(dq: QuizViewModel.DisplayQuestion?) {
+    binding.radioGroupOptions.removeAllViews()
+    if (dq == null) return
+    binding.textQuestion.text = dq.text
 
-        if (question == null) {
-            binding.textQuestion.text = "Brak pytania"
-            binding.buttonConfirm.isEnabled = false
-            return
-        }
-
-        binding.textQuestion.text = question.text
-
-        // Dla każdej opcji twórz RadioButton
-        question.options.forEachIndexed { idx, optionText ->
-            val radioButton = RadioButton(this).apply {
-                id = idx  // ID = index opcji
-                text = optionText
-                textSize = 16f
-                // Opcjonalnie padding/margines:
-                // setPadding(8, 8, 8, 8)
-            }
-            // Dodaj do grupy
-            binding.radioGroupOptions.addView(radioButton)
-
-            // Jeśli w ViewModel istniało zaznaczenie (np. przy przywracaniu stanu), zaznacz odpowiedni:
-            val selected = viewModel.selectedOptionIndex.value ?: -1
-            if (selected == idx) {
-                radioButton.isChecked = true
-            }
-        }
-
-        // Listener zmiany zaznaczenia:
-        binding.radioGroupOptions.setOnCheckedChangeListener { group: RadioGroup, checkedId: Int ->
-            if (checkedId >= 0) {
-                viewModel.selectOption(checkedId)
-            } else {
-                viewModel.selectOption(-1)
-            }
-        }
-        // Na początku, gdy nowe pytanie, przywraciliśmy selectedOptionIndex = -1 w ViewModel.resetQuiz() lub confirmAnswer,
-        // więc nie powinno być nic zaznaczone i przyciskConfirm będzie disabled dopóki użytkownik nie wybierze.
+    dq.options.forEachIndexed { i, opt ->
+      RadioButton(this).apply {
+        id = i
+        text = opt
+        textSize = 16f
+      }.also { rb ->
+        binding.radioGroupOptions.addView(rb)
+      }
     }
+    // blokujemy potwierdź dopóki nie wybiorą
+    binding.buttonConfirm.isEnabled = false
+    binding.radioGroupOptions.setOnCheckedChangeListener { _, _ ->
+      binding.buttonConfirm.isEnabled = true
+    }
+  }
 }
 

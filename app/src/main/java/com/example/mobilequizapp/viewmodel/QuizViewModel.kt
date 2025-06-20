@@ -6,103 +6,70 @@ import androidx.lifecycle.ViewModel
 import com.example.mobilequizapp.data.Question
 import com.example.mobilequizapp.data.SampleQuestions
 
-// w pliku QuizViewModel.kt, nad klasą QuizViewModel
-data class ShuffledQuestion(
-    val text: String,
-    val options: List<String>,
-    val correctAnswerIndex: Int
-)
-
 class QuizViewModel : ViewModel() {
 
-    // Wygenerowana i wylosowana lista pytań do bieżącej gry
-    private var questions: List<ShuffledQuestion> = listOf()
+  // -- shuffle pytań raz przy starcie:
+  private val questions: List<Question> = SampleQuestions.list.shuffled()
 
-    // Indeks aktualnego pytania w tej liście
-    private val _currentIndex = MutableLiveData(0)
-    val currentIndex: LiveData<Int> = _currentIndex
+  // indeks pytania
+  private val _currentIndex = MutableLiveData(0)
+  val currentIndex: LiveData<Int> = _currentIndex
 
-    // Bieżące pytanie – ShuffledQuestion
-    private val _currentQuestion = MutableLiveData<ShuffledQuestion?>(null)
-    val currentQuestion: LiveData<ShuffledQuestion?> = _currentQuestion
+  // bieżące pytanie (z losową kolejnością opcji)
+  private val _currentQuestion = MutableLiveData<DisplayQuestion?>().apply {
+    value = makeDisplayQuestion(0)
+  }
+  val currentQuestion: LiveData<DisplayQuestion?> = _currentQuestion
 
-    // Punktacja na żywo
-    private val _score = MutableLiveData(0)
-    val score: LiveData<Int> = _score
+  // wynik
+  private val _score = MutableLiveData(0)
+  val score: LiveData<Int> = _score
 
-    // Czy quiz zakończony
-    private val _isFinished = MutableLiveData(false)
-    val isFinished: LiveData<Boolean> = _isFinished
+  // czy koniec?
+  private val _isFinished = MutableLiveData(false)
+  val isFinished: LiveData<Boolean> = _isFinished
 
-    // Pomocnicze flagi
-    private var answeredThisQuestion = false
+  // przekształcony obiekt, który zawiera pytanie + losowo przemieszane opcje
+  data class DisplayQuestion(
+    val text: String,
+    val options: List<String>,
+    val correctAnswerPosition: Int
+  )
 
-    // LiveData sygnalizujące czy ostatnia odpowiedź była poprawna (opcjonalnie)
-    private val _isAnswerCorrect = MutableLiveData<Boolean?>()
-    val isAnswerCorrect: LiveData<Boolean?> = _isAnswerCorrect
+  // helper: dla pytania idx zwraca DisplayQuestion
+  private fun makeDisplayQuestion(idx: Int): DisplayQuestion? {
+    val q = questions.getOrNull(idx) ?: return null
+    // indeksy oryginalnych opcji
+    val original = q.options.mapIndexed { i, t -> i to t }.shuffled()
+    val opts = original.map { it.second }
+    val correctPos = original.indexOfFirst { it.first == q.correctAnswerIndex }
+    return DisplayQuestion(q.text, opts, correctPos)
+  }
 
-    init {
-        resetQuiz()
+  fun selectAndConfirm(answerPos: Int) {
+    // jeżeli dobrana pozycja = correctAnswerPosition, +1 punkt
+    _currentQuestion.value?.let { dq ->
+      if (answerPos == dq.correctAnswerPosition) {
+        _score.value = (_score.value ?: 0) + 1
+      }
     }
-
-    /** Miesza pytania i dla każdego opcje, zwraca ShuffledQuestion listę */
-    private fun generateShuffledQuestions(): List<ShuffledQuestion> {
-        return SampleQuestions.list
-            .shuffled()  // losujemy kolejność pytań
-            .map { q ->
-                // parujemy każdą opcję z jej oryginalnym indeksem
-                val paired = q.options.mapIndexed { idx, opt -> opt to idx }
-                    .shuffled() // losujemy kolejność opcji
-                val opts = paired.map { it.first }
-                // nowy indeks poprawnej opcji to pozycja w poshuffled parze, gdzie oryginalny idx==q.correctAnswerIndex
-                val newCorrect = paired.indexOfFirst { it.second == q.correctAnswerIndex }
-                ShuffledQuestion(q.text, opts, newCorrect)
-            }
+    // przejdź dalej lub zakończ
+    val next = (_currentIndex.value ?: 0) + 1
+    if (next < questions.size) {
+      _currentIndex.value = next
+      _currentQuestion.value = makeDisplayQuestion(next)
+    } else {
+      _isFinished.value = true
     }
+  }
 
-    /** Resetuje grę: punktacja, shuffle, pierwszy question */
-    fun resetQuiz() {
-        _score.value = 0
-        _isFinished.value = false
-        _isAnswerCorrect.value = null
-        answeredThisQuestion = false
+  fun totalQuestions() = questions.size
 
-        questions = generateShuffledQuestions()
-        _currentIndex.value = 0
-        _currentQuestion.value = questions[0]
-    }
-
-    /** Użytkownik wybrał opcję o indeksie [index] */
-    fun selectOption(index: Int) {
-        if (answeredThisQuestion) return
-        val question = _currentQuestion.value ?: return
-
-        // inkrementacja tylko raz na pytanie
-        if (index == question.correctAnswerIndex) {
-            _score.value = (_score.value ?: 0) + 1
-            _isAnswerCorrect.value = true
-        } else {
-            _isAnswerCorrect.value = false
-        }
-        answeredThisQuestion = true
-    }
-
-    /** Potwierdzenie i przejście do następnego pytania lub zakończenie */
-    fun confirmAnswer() {
-        // resetujemy flagi pod kolejne pytanie
-        answeredThisQuestion = false
-        _isAnswerCorrect.value = null
-
-        val next = (_currentIndex.value ?: 0) + 1
-        if (next < questions.size) {
-            _currentIndex.value = next
-            _currentQuestion.value = questions[next]
-        } else {
-            _isFinished.value = true
-        }
-    }
-
-    /** Całkowita liczba pytań w tej grze */
-    fun totalQuestions(): Int = questions.size
+  fun resetQuiz() {
+    _score.value = 0
+    _currentIndex.value = 0
+    _isFinished.value = false
+    _currentQuestion.value = makeDisplayQuestion(0)
+  }
 }
 
