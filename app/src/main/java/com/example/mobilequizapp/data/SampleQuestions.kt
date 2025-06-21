@@ -1,5 +1,6 @@
 package com.example.mobilequizapp.data
 
+/*
 object SampleQuestions {
     val list: List<Question> = listOf(
         Question(
@@ -28,4 +29,23 @@ object SampleQuestions {
         )
     )
 }
+*/
 
+object SampleQuestions {
+    val osSingle: List<Question> = listOf(
+        Question(1, "Co to jest jądro systemu operacyjnego?", listOf("Kernel", "Shell", "GUI", "BIOS"), correctAnswerIndex = 0),
+        // ... więcej pytań SO single ...
+    )
+    val osMulti: List<Question> = listOf(
+        Question(1, "Które z poniższych to procesy jądra?", listOf("Scheduler", "File system", "Shell", "Memory manager"), correctAnswerIndices = listOf(0,1,3)),
+        // ... więcej pytań SO multi ...
+    )
+    val dbSingle: List<Question> = listOf(
+        Question(1, "Co oznacza SQL?", listOf("Structured Query Language", "Simple Query Language", "Sequential Query List", "Standard Query List"), correctAnswerIndex = 0),
+        // ... więcej pytań BD single ...
+    )
+    val dbMulti: List<Question> = listOf(
+        Question(1, "Które typy JOIN zwracają tylko wspólne wiersze?", listOf("INNER", "OUTER", "LEFT", "RIGHT"), correctAnswerIndices = listOf(0)),
+        // ... więcej pytań BD multi ...
+    )
+}

@@ -7,17 +7,25 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/textWelcome"
-        android:text="@string/app_name"
-        android:textSize="32sp"
+        android:id="@+id/textSelect"
+        android:text="Wybierz kategorię"
+        android:textSize="28sp"
         android:layout_marginBottom="32dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
     <Button
-        android:id="@+id/buttonStart"
-        android:text="Rozpocznij Quiz"
+        android:id="@+id/buttonOSSingle"
+        android:text="Systemy Operacyjne"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/buttonDBSingle"
+        android:text="Bazy danych"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"/>
+
 </LinearLayout>
 

@@ -6,17 +6,17 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.mobilequizapp.databinding.ActivityStartBinding
 
 class StartActivity : AppCompatActivity() {
-  private lateinit var binding: ActivityStartBinding
+    private lateinit var binding: ActivityStartBinding
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    binding = ActivityStartBinding.inflate(layoutInflater)
-    setContentView(binding.root)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityStartBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-    binding.buttonStart.setOnClickListener {
-      startActivity(Intent(this, MainActivity::class.java))
-      finish()  // nie wracamy na ekran startowy po quizie
+        binding.buttonStart.setOnClickListener {
+            startActivity(Intent(this, QuizSelectionActivity::class.java))
+            finish()
+        }
     }
-  }
 }
 

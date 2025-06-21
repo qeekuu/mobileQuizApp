@@ -7,23 +7,33 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:allowBackup="true"
         android:supportsRtl="true"
-		android:theme="@style/Theme.MobileQuizApp">
-		<activity
-			android:name=".StartActivity"
-			android:exported="true">
-		<intent-filter>
-			<action android:name="android.intent.action.MAIN"/>
-			<category android:name="android.intent.category.LAUNCHER"/>
-		</intent-filter>
-		</activity>
-		<activity
-			android:name=".MainActivity"
-			android:exported="false">
-		</activity>
-		<activity
+        android:theme="@style/Theme.MobileQuizApp">
+
+        <!-- Ekran startowy (LAUNCHER) -->
+        <activity
+            android:name=".StartActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Ekran wyboru kategorii -->
+        <activity
+            android:name=".QuizSelectionActivity"
+            android:exported="false" />
+
+        <!-- Główny quiz -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+
+        <!-- Wyniki -->
+        <activity
             android:name=".ResultActivity"
-            android:exported="false">
-        </activity>	
+            android:exported="false" />
+
     </application>
 </manifest>
 
