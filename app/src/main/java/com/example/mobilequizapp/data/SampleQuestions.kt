@@ -32,6 +32,7 @@ object SampleQuestions {
 */
 
 object SampleQuestions {
+	// Pytania z systemów
     val osSingle: List<Question> = listOf(
         Question(1, "Co to jest jądro systemu operacyjnego?", listOf("Kernel", "Shell", "GUI", "BIOS"), correctAnswerIndex = 0),
         // ... więcej pytań SO single ...
@@ -40,6 +41,8 @@ object SampleQuestions {
         Question(1, "Które z poniższych to procesy jądra?", listOf("Scheduler", "File system", "Shell", "Memory manager"), correctAnswerIndices = listOf(0,1,3)),
         // ... więcej pytań SO multi ...
     )
+
+	// Pytania z baz
     val dbSingle: List<Question> = listOf(
         Question(1, "Co oznacza SQL?", listOf("Structured Query Language", "Simple Query Language", "Sequential Query List", "Standard Query List"), correctAnswerIndex = 0),
         // ... więcej pytań BD single ...

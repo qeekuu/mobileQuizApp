@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
                     Intent(this, ResultActivity::class.java)
                         .putExtra(ResultActivity.EXTRA_SCORE, vm.score.value)
                         .putExtra(ResultActivity.EXTRA_TOTAL, vm.totalQuestions())
+						.putExtra(ResultActivity.EXTRA_CATEGORY, category)
                 )
                 finish()
             }
